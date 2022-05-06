@@ -160,33 +160,33 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "vpc6_tgw_attachment" {
   vpc_id             = "${module.vpc4.vpc_id}"
 } */
 
-resource "aws_route" "tgw-route-one" {
+/* resource "aws_route" "tgw-route-one" {
   route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
-  destination_cidr_block = "10.0.0.0/8"
+  destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
 resource "aws_route" "tgw-route-two" {
   route_table_id         = "${module.vpc1.private_route_table_ids[0]}"
-  destination_cidr_block = "10.0.0.0/8"
+  destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
-}
+} */
 
 resource "aws_route" "tgw-route-three" {
   route_table_id         = "${module.vpc2.private_route_table_ids[0]}"
-  destination_cidr_block = "10.0.0.0/8"
+  destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
 resource "aws_route" "tgw-route-four" {
   route_table_id         = "${module.vpc3.private_route_table_ids[0]}"
-  destination_cidr_block = "10.0.0.0/8"
+  destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
 resource "aws_route" "tgw-route-five" {
   route_table_id         = "${module.vpc4.private_route_table_ids[0]}"
-  destination_cidr_block = "10.0.0.0/8"
+  destination_cidr_block = "0.0.0.0/8"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 /* resource "aws_route" "tgw-route-six" {
