@@ -22,7 +22,7 @@ module "vpc1" {
 
   azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
   public_subnets       = ["10.248.8.0/24", "10.248.9.0/24", "10.248.10.0/24"]
-  private_subnets      = ["10.248.11.0/24", "10.248.12.0/24", "10.248.13.0/24"]
+  private_subnets      = ["10.248.11.0/24"]
   enable_dns_hostnames = true
   enable_dns_support   = true
   enable_nat_gateway   = true
@@ -31,16 +31,47 @@ module "vpc1" {
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
-     Name = "ALB-Miax"
+     Name = "ALB-Public-Miax"
   }
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb"             = "1"
-     Name = "FW-Miax"
+     Name = "FW-Private-Miax"
   }
   tags = {
     Owner       = "user"
     Environment = "Inspection"
   }     
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id             = "${module.vpc1.vpc_id}"
+  cidr_block         = "10.248.13.0/24"
+  availability_zone  = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name        = "NAT-public-subnet"
+    Environment = "Inspection"
+  }
+}
+ 
+resource "aws_route_table_association" "us-east-1a-public" {
+    count          =  length(aws_subnet.public) 
+    subnet_id = "${aws_subnet.public_subnet.id}"
+    route_table_id         = aws_route_table.public_subnet.id
+}
+
+# Private Subnet
+resource "aws_subnet" "private_subnet" {
+  vpc_id             = "${module.vpc1.vpc_id}"
+  cidr_block         = "10.248.12.0/24"
+  availability_zone  = "us-east-1a"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name        = "Transit-Private-subnet"
+    Environment = "Inspection"
+  }
 }
 
 module "vpc2" {
@@ -125,7 +156,7 @@ resource "aws_ec2_transit_gateway" "tgw" {
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc1_tgw_attachment" {
-  subnet_ids         = (["${module.vpc1.public_subnets[0]}", "${module.vpc1.public_subnets[1]}", "${module.vpc1.public_subnets[2]}"])
+  subnet_ids         = flatten(["${module.vpc1.public_subnets[0]}", "${module.vpc1.public_subnets[1]}", "${module.vpc1.public_subnets[2]}"])
   transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   vpc_id             = "${module.vpc1.vpc_id}"
 }
@@ -148,25 +179,13 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "vpc4_tgw_attachment" {
   vpc_id             = "${module.vpc4.vpc_id}"
 }
 
-/* resource "aws_ec2_transit_gateway_vpc_attachment" "vpc5_tgw_attachment" {
-  subnet_ids         = (["${module.vpc4.firewall_subnets[0]}", "${module.vpc4.firewall_subnets[1]}", "${module.vpc4.firewall_subnets[2]}"])
-  transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
-  vpc_id             = "${module.vpc4.vpc_id}"
-}
-
-resource "aws_ec2_transit_gateway_vpc_attachment" "vpc6_tgw_attachment" {
-  subnet_ids         = (["${module.vpc4.transitgateway_subnets[0]}", "${module.vpc4.transitgateway_subnets[1]}", "${module.vpc4.transitgateway_subnets[2]}"])
-  transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
-  vpc_id             = "${module.vpc4.vpc_id}"
-} */
-
 /* resource "aws_route" "tgw-route-one" {
   route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
   destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
-}
+} */
 
-resource "aws_route" "tgw-route-two" {
+/* resource "aws_route" "tgw-route-two" {
   route_table_id         = "${module.vpc1.private_route_table_ids[0]}"
   destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
@@ -186,9 +205,10 @@ resource "aws_route" "tgw-route-four" {
 
 resource "aws_route" "tgw-route-five" {
   route_table_id         = "${module.vpc4.private_route_table_ids[0]}"
-  destination_cidr_block = "0.0.0.0/8"
+  destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
+
 /* resource "aws_route" "tgw-route-six" {
   route_table_id         = "${module.vpc1.firewall_route_table_ids[0]}"
   destination_cidr_block = "10.0.0.0/8"
