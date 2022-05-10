@@ -56,9 +56,9 @@ resource "aws_subnet" "public_subnet" {
 }
  
 resource "aws_route_table_association" "us-east-1a-public" {
-    count          =  length(aws_subnet.public) 
+    count          =  length(aws_subnet.public_subnet) 
     subnet_id = "${aws_subnet.public_subnet.id}"
-    route_table_id         = aws_route_table.public_subnet.id
+    route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
 }
 
 # Private Subnet
