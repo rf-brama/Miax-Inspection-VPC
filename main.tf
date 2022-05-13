@@ -86,6 +86,7 @@ module "vpc2" {
   private_subnets      = ["10.248.32.0/24", "10.248.33.0/24", "10.248.34.0/24"]
   enable_dns_hostnames = true
   enable_dns_support   = true
+  single_nat_gateway   = true  
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
@@ -112,6 +113,7 @@ module "vpc3" {
   private_subnets      = ["10.248.16.0/24", "10.248.17.0/24", "10.248.18.0/24"]
   enable_dns_hostnames = true
   enable_dns_support   = true
+  single_nat_gateway   = true  
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
@@ -137,6 +139,7 @@ module "vpc4" {
   private_subnets      = ["10.248.48.0/24", "10.248.49.0/24", "10.248.50.0/24"]
   enable_dns_hostnames = true
   enable_dns_support   = true
+  single_nat_gateway   = true   
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
@@ -153,43 +156,57 @@ module "vpc4" {
 
 resource "aws_ec2_transit_gateway" "tgw" {
   auto_accept_shared_attachments = "enable"
+  
+  tags = {
+    Name       = "Main-Miax"
+    Environment = "Inspection"
+  } 
 }
 
+
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc1_tgw_attachment" {
-  subnet_ids         = flatten(["${module.vpc1.public_subnets[0]}", "${module.vpc1.public_subnets[1]}", "${module.vpc1.public_subnets[2]}"])
+  subnet_ids         = aws_subnet.private_subnet.*.id
   transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   vpc_id             = "${module.vpc1.vpc_id}"
+  transit_gateway_default_route_table_propagation = false
+  tags = {
+    Name       = "Infra-Transit-Atth-tg"
+    Environment = "Inspection"
+  } 
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc2_tgw_attachment" {
   subnet_ids         = (["${module.vpc2.private_subnets[0]}", "${module.vpc2.private_subnets[1]}", "${module.vpc2.private_subnets[2]}"])
   transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   vpc_id             = "${module.vpc2.vpc_id}"
+  transit_gateway_default_route_table_propagation = false
+  tags = {
+    Name       = "QA-Attachment-tg"
+    Environment = "Development"
+  }   
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc3_tgw_attachment" {
   subnet_ids         = (["${module.vpc3.private_subnets[0]}", "${module.vpc3.private_subnets[1]}", "${module.vpc3.private_subnets[2]}"])
   transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   vpc_id             = "${module.vpc3.vpc_id}"
+  transit_gateway_default_route_table_propagation = false
+  tags = {
+    Name       = "Dev-Attachment-tg"
+    Environment = "Development"
+  } 
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc4_tgw_attachment" {
   subnet_ids         = (["${module.vpc4.private_subnets[0]}", "${module.vpc4.private_subnets[1]}", "${module.vpc4.private_subnets[2]}"])
   transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   vpc_id             = "${module.vpc4.vpc_id}"
+  transit_gateway_default_route_table_propagation = false
+  tags = {
+    Name       = "FTB-Attachment-tg"
+    Environment = "Development"
+  }   
 }
-
-/* resource "aws_route" "tgw-route-one" {
-  route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
-  destination_cidr_block = "0.0.0.0/0"
-  transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
-} */
-
-/* resource "aws_route" "tgw-route-two" {
-  route_table_id         = "${module.vpc1.private_route_table_ids[0]}"
-  destination_cidr_block = "0.0.0.0/0"
-  transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
-} */
 
 resource "aws_route" "tgw-route-three" {
   route_table_id         = "${module.vpc2.private_route_table_ids[0]}"
@@ -209,10 +226,14 @@ resource "aws_route" "tgw-route-five" {
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
-/* resource "aws_route" "tgw-route-six" {
-  route_table_id         = "${module.vpc1.firewall_route_table_ids[0]}"
-  destination_cidr_block = "10.0.0.0/8"
-  transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
+/* resource "aws_ec2_transit_gateway_route_table_association" "route-miax1" {
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc2_tgw_attachment.id
+  transit_gateway_route_table_id = aws_route.tgw-route-three.id
+} */
+/* resource "aws_ec2_transit_gateway_route" "route-miax1" {
+  destination_cidr_block         = "0.0.0.0/0"
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc2_tgw_attachment.*.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway.tgw.default_route_table_association
 } */
 
 /* resource "aws_vpc_endpoint" "miax_infra_endpoint" {
