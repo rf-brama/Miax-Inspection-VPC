@@ -149,7 +149,7 @@ module "vpc4" {
 
 }
 
-#Subnet Routes
+#Attaching TGW to Subnet Routes
 
 resource "aws_route" "tgw-route-three" {
   route_table_id         = "${module.vpc2.private_route_table_ids[0]}"
@@ -194,16 +194,17 @@ resource "aws_ec2_transit_gateway_route_table" "miax" {
 
 #Transit Gateway Attachments
 
-/* resource "aws_ec2_transit_gateway_vpc_attachment" "vpc1_tgw_attachment" {
+resource "aws_ec2_transit_gateway_vpc_attachment" "vpc1_tgw_attachment" {
   subnet_ids         = aws_subnet.private_subnet.*.id
   transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   vpc_id             = "${module.vpc1.vpc_id}"
   transit_gateway_default_route_table_propagation = false
+  transit_gateway_default_route_table_association = false
   tags = {
     Name       = "Infra-Transit-Atth-tg"
     Environment = "Inspection"
   } 
-} */
+}
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "vpc2_tgw_attachment" {
   subnet_ids         = (["${module.vpc2.private_subnets[0]}", "${module.vpc2.private_subnets[1]}", "${module.vpc2.private_subnets[2]}"])
@@ -240,23 +241,45 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "vpc4_tgw_attachment" {
 
 #Transit Gateway Association
 
-/* resource "aws_ec2_transit_gateway_route_table_association" "miax_association" {
+resource "aws_ec2_transit_gateway_route_table_association" "miax_association" {
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc1_tgw_attachment.id
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.miax.id
-}  */
+}
 
-#Transit Gateway Route
+#Transit Gateway Route#
 
-/* resource "aws_ec2_transit_gateway_route" "route-miax1" {
+#VPC to Firewall Route creation
+resource "aws_ec2_transit_gateway_route" "route-miax1" {
   destination_cidr_block         = "0.0.0.0/0"
-  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc2_tgw_attachment.*.id
-  transit_gateway_route_table_id = aws_ec2_transit_gateway.tgw.default_route_table_association
-} */
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc1_tgw_attachment.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway.tgw.association_default_route_table_id
+}
 
-
-/* resource "aws_ec2_transit_gateway_route_table_association" "route-miax1" {
+#Firewall to VPC Route creation
+#QA route
+resource "aws_ec2_transit_gateway_route" "route-miax2" {
+  destination_cidr_block         = "10.248.32.0/20"
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc2_tgw_attachment.id
-  transit_gateway_route_table_id = aws_route.tgw-route-three.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.miax.id
+}
+#DEV route
+resource "aws_ec2_transit_gateway_route" "route-miax3" {
+  destination_cidr_block         = "10.248.16.0/20"
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc3_tgw_attachment.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.miax.id
+}
+#FTB route
+resource "aws_ec2_transit_gateway_route" "route-miax4" {
+  destination_cidr_block         = "10.248.48.0/20"
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc4_tgw_attachment.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.miax.id
+}
+
+
+/* resource "aws_ec2_transit_gateway_route" "route-miax2" {
+  destination_cidr_block         = "0.0.0.0/0"
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc3_tgw_attachment.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway.tgw.association_default_route_table_id
 } */
 
 /* resource "aws_vpc_endpoint" "miax_infra_endpoint" {
