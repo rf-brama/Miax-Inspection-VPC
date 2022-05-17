@@ -69,6 +69,32 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
+#Creating private Route for TG subnet
+resource "aws_route_table" "transit_private" {
+  vpc_id = "${module.vpc1.vpc_id}"
+
+  route = []
+
+  tags = {
+    Name = "Transit-private"
+  }
+}
+
+#Route Table Association
+#Public
+resource "aws_route_table_association" "us-east-1a-public" {
+    count          =  length(aws_subnet.public_subnet) 
+    subnet_id = "${aws_subnet.public_subnet.id}"
+    route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
+}
+
+#Private
+resource "aws_route_table_association" "us-east-1a-private" {
+    count          =  length(aws_subnet.private_subnet) 
+    subnet_id = "${aws_subnet.private_subnet.id}"
+    route_table_id         = "${aws_route_table.transit_private.id}"
+}
+
 module "vpc2" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.2.0"
@@ -169,13 +195,27 @@ resource "aws_route" "tgw-route-five" {
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
-#Route Table Association
+#VPC Endpoint Route
 
-resource "aws_route_table_association" "us-east-1a-public" {
-    count          =  length(aws_subnet.public_subnet) 
-    subnet_id = "${aws_subnet.public_subnet.id}"
-    route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
+/* resource "aws_vpc_endpoint_subnet_association" "miax1" {
+  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  subnet_id       = "${module.vpc1.public_subnets[0]}"
 }
+
+resource "aws_vpc_endpoint_subnet_association" "miax2" {
+  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  subnet_id       = "${module.vpc1.public_subnets[1]}"
+}
+resource "aws_vpc_endpoint_subnet_association" "miax3" {
+  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  subnet_id       = "${module.vpc1.public_subnets[2]}"
+} */
+
+/* resource "aws_vpc_endpoint_route_table_association" "miax1" {
+  route_table_id  = "${module.vpc1.public_route_table_ids[0]}"
+  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+} */
+
 
 #Transit Gateway
 resource "aws_ec2_transit_gateway" "tgw" {
