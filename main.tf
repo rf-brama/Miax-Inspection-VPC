@@ -73,10 +73,50 @@ resource "aws_subnet" "private_subnet" {
 resource "aws_route_table" "transit_private" {
   vpc_id = "${module.vpc1.vpc_id}"
 
-  route = []
+  route {
+    cidr_block = "0.0.0.0/0"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.8.0/24"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.10.0/24"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.9.0/24"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }       
 
   tags = {
-    Name = "Transit-private"
+    Name = "Ingress-VPC-MIAX-TGW-RT1"
+  }
+}
+
+resource "aws_route_table" "nat_private" {
+  vpc_id = "${module.vpc1.vpc_id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "igw-0ce178f112d05eed6"
+  }
+  route {
+    cidr_block = "10.248.16.0/20"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.32.0/20"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.48.0/20"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }       
+
+  tags = {
+    Name = "Ingress-VPC-MIAX-NAT-RT1"
   }
 }
 
@@ -85,7 +125,7 @@ resource "aws_route_table" "transit_private" {
 resource "aws_route_table_association" "us-east-1a-public" {
     count          =  length(aws_subnet.public_subnet) 
     subnet_id = "${aws_subnet.public_subnet.id}"
-    route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
+    route_table_id         = "${aws_route_table.nat_private.id}"
 }
 
 #Private
@@ -94,6 +134,7 @@ resource "aws_route_table_association" "us-east-1a-private" {
     subnet_id = "${aws_subnet.private_subnet.id}"
     route_table_id         = "${aws_route_table.transit_private.id}"
 }
+
 
 module "vpc2" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -194,6 +235,25 @@ resource "aws_route" "tgw-route-five" {
   destination_cidr_block = "0.0.0.0/0"
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
+#Adding Routes for VPC
+resource "aws_route" "tgw-route-six" {
+  route_table_id         = "${module.vpc1.private_route_table_ids[0]}"
+  destination_cidr_block = "10.248.16.0/20"
+  transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
+}
+
+resource "aws_route" "tgw-route-seven" {
+  route_table_id         = "${module.vpc1.private_route_table_ids[0]}"
+  destination_cidr_block = "10.248.32.0/20"
+  transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
+}
+
+resource "aws_route" "tgw-route-eight" {
+  route_table_id         = "${module.vpc1.private_route_table_ids[0]}"
+  destination_cidr_block = "10.248.48.0/20"
+  transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
+}
+
 
 #VPC Endpoint Route
 
@@ -211,8 +271,17 @@ resource "aws_vpc_endpoint_subnet_association" "miax3" {
   subnet_id       = "${module.vpc1.public_subnets[2]}"
 } */
 
+resource "aws_route_table" "miax1" {
+  vpc_id = "${module.vpc1.vpc_id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+}
+
 /* resource "aws_vpc_endpoint_route_table_association" "miax1" {
-  route_table_id  = "${module.vpc1.public_route_table_ids[0]}"
+  route_table_id  = "${aws_route_table.transit_private.id}"
   vpc_endpoint_id = "vpce-05e5eca677ac5e145"
 } */
 
