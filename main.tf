@@ -95,37 +95,12 @@ resource "aws_route_table" "transit_private" {
   }
 }
 
-resource "aws_route_table" "nat_private" {
-  vpc_id = "${module.vpc1.vpc_id}"
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "igw-0ce178f112d05eed6"
-  }
-  route {
-    cidr_block = "10.248.16.0/20"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  }
-  route {
-    cidr_block = "10.248.32.0/20"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  }
-  route {
-    cidr_block = "10.248.48.0/20"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  }       
-
-  tags = {
-    Name = "Ingress-VPC-MIAX-NAT-RT1"
-  }
-}
-
 #Route Table Association
 #Public
 resource "aws_route_table_association" "us-east-1a-public" {
     count          =  length(aws_subnet.public_subnet) 
     subnet_id = "${aws_subnet.public_subnet.id}"
-    route_table_id         = "${aws_route_table.nat_private.id}"
+    route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
 }
 
 #Private
@@ -134,16 +109,6 @@ resource "aws_route_table_association" "us-east-1a-private" {
     subnet_id = "${aws_subnet.private_subnet.id}"
     route_table_id         = "${aws_route_table.transit_private.id}"
 }
-
-resource "aws_nat_gateway" "miaxpublic" {
-  allocation_id = "eipassoc-0f1220f2165a5ca2e"
-  subnet_id     = "${aws_subnet.public_subnet.id}"
-
-  tags = {
-    Name = "GK-Infra-NAT1"
-  }
-}
-
 
 module "vpc2" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -263,37 +228,25 @@ resource "aws_route" "tgw-route-eight" {
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
-
-#VPC Endpoint Route
-
-/* resource "aws_vpc_endpoint_subnet_association" "miax1" {
+#Routes for VPCE from NAT
+#QA VPCE Route
+resource "aws_route" "vpceroute1" {
+  route_table_id            = "${module.vpc1.public_route_table_ids[0]}"
+  destination_cidr_block    = "10.248.32.0/20"
   vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  subnet_id       = "${module.vpc1.public_subnets[0]}"
 }
-
-resource "aws_vpc_endpoint_subnet_association" "miax2" {
+#DEV VPCE Route
+resource "aws_route" "vpceroute2" {
+  route_table_id            = "${module.vpc1.public_route_table_ids[0]}"
+  destination_cidr_block    = "10.248.16.0/20"
   vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  subnet_id       = "${module.vpc1.public_subnets[1]}"
 }
-resource "aws_vpc_endpoint_subnet_association" "miax3" {
+#FTB VPCE Route
+resource "aws_route" "vpceroute3" {
+  route_table_id            = "${module.vpc1.public_route_table_ids[0]}"
+  destination_cidr_block    = "10.248.48.0/20"
   vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  subnet_id       = "${module.vpc1.public_subnets[2]}"
-} */
-
-/* resource "aws_route_table" "miax1" {
-  vpc_id = "${module.vpc1.vpc_id}"
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  }
-} */
-
-/* resource "aws_vpc_endpoint_route_table_association" "miax1" {
-  route_table_id  = "${aws_route_table.transit_private.id}"
-  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-} */
-
+}
 
 #Transit Gateway
 resource "aws_ec2_transit_gateway" "tgw" {
@@ -392,22 +345,6 @@ resource "aws_ec2_transit_gateway_route" "route-miax4" {
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc4_tgw_attachment.id
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.miax.id
 }
-
-
-/* resource "aws_ec2_transit_gateway_route" "route-miax2" {
-  destination_cidr_block         = "0.0.0.0/0"
-  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc3_tgw_attachment.id
-  transit_gateway_route_table_id = aws_ec2_transit_gateway.tgw.association_default_route_table_id
-} */
-
-/* resource "aws_vpc_endpoint" "miax_infra_endpoint" {
-  vpc_id            = "${module.vpc1.vpc_id}"
-  service_name      = "com.amazonaws.us-east-1.vpce-svc"
-  vpc_endpoint_type = "GatewayLoadBalancer"
-
-  subnet_ids         = (["${module.vpc1.public_subnets[0]}", "${module.vpc1.public_subnets[1]}", "${module.vpc1.public_subnets[2]}"])
-  private_dns_enabled = false
-} */
 
 /* resource "aws_lb" "this" {
   name               = "Miax-load-balancer"
