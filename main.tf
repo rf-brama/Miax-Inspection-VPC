@@ -135,6 +135,15 @@ resource "aws_route_table_association" "us-east-1a-private" {
     route_table_id         = "${aws_route_table.transit_private.id}"
 }
 
+resource "aws_nat_gateway" "miaxpublic" {
+  allocation_id = "eipassoc-0f1220f2165a5ca2e"
+  subnet_id     = "${aws_subnet.public_subnet.id}"
+
+  tags = {
+    Name = "GK-Infra-NAT1"
+  }
+}
+
 
 module "vpc2" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -271,14 +280,14 @@ resource "aws_vpc_endpoint_subnet_association" "miax3" {
   subnet_id       = "${module.vpc1.public_subnets[2]}"
 } */
 
-resource "aws_route_table" "miax1" {
+/* resource "aws_route_table" "miax1" {
   vpc_id = "${module.vpc1.vpc_id}"
 
   route {
     cidr_block = "0.0.0.0/0"
     vpc_endpoint_id = "vpce-05e5eca677ac5e145"
   }
-}
+} */
 
 /* resource "aws_vpc_endpoint_route_table_association" "miax1" {
   route_table_id  = "${aws_route_table.transit_private.id}"
