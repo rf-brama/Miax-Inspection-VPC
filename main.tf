@@ -7,6 +7,12 @@ provider "aws" {
   region = var.region
 }
 
+data "aws_availability_zones" "available" {}
+
+locals {
+  cluster_name = "MIAX-POC"
+}
+
 resource "random_string" "suffix" {
   length  = 8
   special = false
@@ -27,19 +33,22 @@ module "vpc1" {
   enable_dns_support   = true
   enable_nat_gateway   = true
   single_nat_gateway   = true
-    
+  
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
      Name = "ALB-Public-Miax"
   }
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb"             = "1"
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
      Name = "FW-Private-Miax"
   }
   tags = {
     Owner       = "user"
     Environment = "Inspection"
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
   }     
 }
 
