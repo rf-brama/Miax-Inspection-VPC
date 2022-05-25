@@ -38,12 +38,12 @@ module "vpc1" {
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-     Name = "ALB-Public-Miax"
+     Name = "GK-Infra-ALB"
   }
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb"             = "1"
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-     Name = "FW-Private-Miax"
+     Name = "GK-Infra-FW"
   }
   tags = {
     Owner       = "user"
@@ -60,7 +60,7 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name        = "NAT-public-subnet"
+    Name        = "GK-Infra-NAT-Pub"
     Environment = "Inspection"
   }
 }
@@ -73,7 +73,7 @@ resource "aws_subnet" "private_subnet" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name        = "Transit-Private-subnet"
+    Name        = "GK-Infra-TGW"
     Environment = "Inspection"
   }
 }
