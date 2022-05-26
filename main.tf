@@ -354,11 +354,3 @@ resource "aws_ec2_transit_gateway_route" "route-miax4" {
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc4_tgw_attachment.id
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.miax.id
 }
-
-/* resource "aws_lb" "this" {
-  name               = "Miax-load-balancer"
-  load_balancer_type = "network"
-  subnets            = (["${module.vpc1.public_subnets[0]}", "${module.vpc1.public_subnets[1]}", "${module.vpc1.public_subnets[2]}"])
-
-  enable_cross_zone_load_balancing = true
-} */
