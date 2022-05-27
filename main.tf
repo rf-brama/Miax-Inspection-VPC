@@ -260,6 +260,9 @@ resource "aws_route" "vpceroute3" {
 #Transit Gateway
 resource "aws_ec2_transit_gateway" "tgw" {
   auto_accept_shared_attachments = "enable"
+  dns_support = "disable"
+  vpn_ecmp_support = "disable"
+  default_route_table_propagation = "disable"
   
   tags = {
     Name       = "Main-Miax"
