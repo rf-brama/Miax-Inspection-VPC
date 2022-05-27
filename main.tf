@@ -105,18 +105,45 @@ resource "aws_route_table" "transit_private" {
 }
 
 #Route Table Association
-#Public
-resource "aws_route_table_association" "us-east-1a-public" {
-    count          =  length(aws_subnet.public_subnet) 
-    subnet_id = "${aws_subnet.public_subnet.id}"
-    route_table_id         = "${module.vpc1.public_route_table_ids[0]}"
-}
-
 #Private
 resource "aws_route_table_association" "us-east-1a-private" {
     count          =  length(aws_subnet.private_subnet) 
     subnet_id = "${aws_subnet.private_subnet.id}"
     route_table_id         = "${aws_route_table.transit_private.id}"
+}
+
+#Creating Publice Route for FW subnet
+resource "aws_route_table" "transit_public" {
+  vpc_id = "${module.vpc1.vpc_id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "igw-0ce178f112d05eed6"
+  }
+  route {
+    cidr_block = "10.248.8.0/24"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.10.0/24"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }
+  route {
+    cidr_block = "10.248.9.0/24"
+    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  }       
+
+  tags = {
+    Name = "Ingress-VPC-MIAX-FW-RT1"
+  }
+}
+
+#Route Table Association
+#Public
+resource "aws_route_table_association" "us-east-1a-public" {
+    count          =  length(aws_subnet.public_subnet) 
+    subnet_id = "${aws_subnet.public_subnet.id}"
+    route_table_id         = "${aws_route_table.transit_public.id}"
 }
 
 module "vpc2" {
