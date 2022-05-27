@@ -121,18 +121,29 @@ resource "aws_route_table" "transit_public" {
     gateway_id = "igw-0ce178f112d05eed6"
   }
   route {
-    cidr_block = "10.248.8.0/24"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+    cidr_block = "10.248.16.0/20"
+    transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   }
   route {
-    cidr_block = "10.248.10.0/24"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+    cidr_block = "10.248.32.0/20"
+    transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
+  }
+  route {
+    cidr_block = "10.248.48.0/20"
+    transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
+  }
+  route {
+    cidr_block = "10.248.8.0/24"
+    network_interface_id = "eni-014dc2ae0592823a1"
   }
   route {
     cidr_block = "10.248.9.0/24"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
-  }       
-
+    network_interface_id = "eni-0044b59c0ababac91"
+  }
+  route {
+    cidr_block = "10.248.10.0/24"
+    network_interface_id = "eni-020460e8ea29057ef"
+  }
   tags = {
     Name = "Ingress-VPC-MIAX-FW-RT1"
   }
