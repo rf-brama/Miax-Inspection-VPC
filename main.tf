@@ -84,19 +84,19 @@ resource "aws_route_table" "transit_private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+    vpc_endpoint_id = var.vpcendpointeast
   }
   route {
     cidr_block = "10.248.8.0/24"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+    vpc_endpoint_id = var.vpcendpointeast
   }
   route {
     cidr_block = "10.248.10.0/24"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+    vpc_endpoint_id = var.vpcendpointeast
   }
   route {
     cidr_block = "10.248.9.0/24"
-    vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+    vpc_endpoint_id = var.vpcendpointeast
   }       
 
   tags = {
@@ -280,19 +280,19 @@ resource "aws_route" "tgw-route-eight" {
 resource "aws_route" "vpceroute1" {
   route_table_id            = "${module.vpc1.public_route_table_ids[0]}"
   destination_cidr_block    = "10.248.32.0/20"
-  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  vpc_endpoint_id = var.vpcendpointeast
 }
 #DEV VPCE Route
 resource "aws_route" "vpceroute2" {
   route_table_id            = "${module.vpc1.public_route_table_ids[0]}"
   destination_cidr_block    = "10.248.16.0/20"
-  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  vpc_endpoint_id = var.vpcendpointeast
 }
 #FTB VPCE Route
 resource "aws_route" "vpceroute3" {
   route_table_id            = "${module.vpc1.public_route_table_ids[0]}"
   destination_cidr_block    = "10.248.48.0/20"
-  vpc_endpoint_id = "vpce-05e5eca677ac5e145"
+  vpc_endpoint_id = var.vpcendpointeast
 }
 
 #Transit Gateway
