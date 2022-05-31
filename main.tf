@@ -134,15 +134,15 @@ resource "aws_route_table" "transit_public" {
   }
   route {
     cidr_block = "10.248.8.0/24"
-    network_interface_id = "eni-026339d8585a13bc3"
-  }
-  route {
-    cidr_block = "10.248.9.0/24"
     network_interface_id = "eni-0964d2b18dfbb6e66"
   }
   route {
-    cidr_block = "10.248.10.0/24"
+    cidr_block = "10.248.9.0/24"
     network_interface_id = "eni-0a46951b88c672a3d"
+  }
+  route {
+    cidr_block = "10.248.10.0/24"
+    network_interface_id = "eni-026339d8585a13bc3"
   }
   tags = {
     Name = "Ingress-VPC-MIAX-FW-RT1"
