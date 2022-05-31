@@ -118,7 +118,7 @@ resource "aws_route_table" "transit_public" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "igw-0ce178f112d05eed6"
+    gateway_id = module.vpc1.igw_id
   }
   route {
     cidr_block = "10.248.16.0/20"
@@ -134,15 +134,15 @@ resource "aws_route_table" "transit_public" {
   }
   route {
     cidr_block = "10.248.8.0/24"
-    network_interface_id = "eni-014dc2ae0592823a1"
+    network_interface_id = "eni-026339d8585a13bc3"
   }
   route {
     cidr_block = "10.248.9.0/24"
-    network_interface_id = "eni-0044b59c0ababac91"
+    network_interface_id = "eni-0964d2b18dfbb6e66"
   }
   route {
     cidr_block = "10.248.10.0/24"
-    network_interface_id = "eni-020460e8ea29057ef"
+    network_interface_id = "eni-0a46951b88c672a3d"
   }
   tags = {
     Name = "Ingress-VPC-MIAX-FW-RT1"
