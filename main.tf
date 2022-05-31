@@ -70,7 +70,7 @@ resource "aws_route_table" "transit_private" {
   vpc_id = "${module.vpc1.vpc_id}"
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.cidropen
     vpc_endpoint_id = var.vpcendpointeast
   }
   route {
@@ -118,7 +118,7 @@ resource "aws_route_table" "transit_public" {
   vpc_id = "${module.vpc1.vpc_id}"
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.cidropen
     gateway_id = module.vpc1.igw_id
   }
   route {
@@ -242,19 +242,19 @@ module "vpc4" {
 
 resource "aws_route" "tgw-route-three" {
   route_table_id         = "${module.vpc2.private_route_table_ids[0]}"
-  destination_cidr_block = "0.0.0.0/0"
+  destination_cidr_block = var.cidropen
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
 resource "aws_route" "tgw-route-four" {
   route_table_id         = "${module.vpc3.private_route_table_ids[0]}"
-  destination_cidr_block = "0.0.0.0/0"
+  destination_cidr_block = var.cidropen
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 
 resource "aws_route" "tgw-route-five" {
   route_table_id         = "${module.vpc4.private_route_table_ids[0]}"
-  destination_cidr_block = "0.0.0.0/0"
+  destination_cidr_block = var.cidropen
   transit_gateway_id     = "${aws_ec2_transit_gateway.tgw.id}"
 }
 #Adding Routes for VPC
@@ -372,7 +372,7 @@ resource "aws_ec2_transit_gateway_route_table_association" "miax_association" {
 
 #VPC to Firewall Route creation
 resource "aws_ec2_transit_gateway_route" "route-miax1" {
-  destination_cidr_block         = "0.0.0.0/0"
+  destination_cidr_block         = var.cidropen
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.vpc1_tgw_attachment.id
   transit_gateway_route_table_id = aws_ec2_transit_gateway.tgw.association_default_route_table_id
 }
