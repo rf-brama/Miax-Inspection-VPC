@@ -51,19 +51,6 @@ module "vpc1" {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
   }     
 }
-
-# Public Subnet
-resource "aws_subnet" "public_subnet" {
-  vpc_id             = "${module.vpc1.vpc_id}"
-  cidr_block         = "10.248.13.0/24"
-  availability_zone  = "us-east-1a"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name        = "GK-Infra-NAT-Pub"
-    Environment = "Inspection"
-  }
-}
  
 # Private Subnet
 resource "aws_subnet" "private_subnet" {
@@ -110,6 +97,20 @@ resource "aws_route_table_association" "us-east-1a-private" {
     count          =  length(aws_subnet.private_subnet) 
     subnet_id = "${aws_subnet.private_subnet.id}"
     route_table_id         = "${aws_route_table.transit_private.id}"
+}
+
+
+# Public Subnet
+resource "aws_subnet" "public_subnet" {
+  vpc_id             = "${module.vpc1.vpc_id}"
+  cidr_block         = "10.248.13.0/24"
+  availability_zone  = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name        = "GK-Infra-NAT-Pub"
+    Environment = "Inspection"
+  }
 }
 
 #Creating Publice Route for FW subnet
