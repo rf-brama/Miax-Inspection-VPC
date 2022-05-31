@@ -22,7 +22,7 @@ module "vpc1" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "3.2.0"
 
-  name = "Ingress-vpc-miax"
+  name = "Ingress-VPC-MIAX"
 
   cidr = "10.248.0.0/20"
 
@@ -132,18 +132,6 @@ resource "aws_route_table" "transit_public" {
   route {
     cidr_block = "10.248.48.0/20"
     transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
-  }
-  route {
-    cidr_block = "10.248.8.0/24"
-    network_interface_id = "eni-0964d2b18dfbb6e66"
-  }
-  route {
-    cidr_block = "10.248.9.0/24"
-    network_interface_id = "eni-0a46951b88c672a3d"
-  }
-  route {
-    cidr_block = "10.248.10.0/24"
-    network_interface_id = "eni-026339d8585a13bc3"
   }
   tags = {
     Name = "Ingress-VPC-MIAX-FW-RT1"
