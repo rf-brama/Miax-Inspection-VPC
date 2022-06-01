@@ -46,7 +46,7 @@ module "vpc1" {
      Name = "GK-Infra-FW"
   }
   private_route_table_tags = {
-     Name = "Ingress-VPC-MIAX-NAT-RT1"
+     Name = "Ingress-VPC-MIAX-FW-RT1"
   }
   public_route_table_tags = {
      Name = "Ingress-VPC-MIAX-ALB"
@@ -140,7 +140,7 @@ resource "aws_route_table" "transit_public" {
     transit_gateway_id = "${aws_ec2_transit_gateway.tgw.id}"
   }
   tags = {
-    Name = "Ingress-VPC-MIAX-FW-RT1"
+    Name = "Ingress-VPC-MIAX-NAT-RT1"
   }
 }
 
