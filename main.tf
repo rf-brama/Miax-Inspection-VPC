@@ -45,6 +45,12 @@ module "vpc1" {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
      Name = "GK-Infra-FW"
   }
+  private_route_table_tags = {
+     Name = "Ingress-VPC-MIAX-NAT-RT1"
+  }
+  public_route_table_tags = {
+     Name = "Ingress-VPC-MIAX-ALB"
+  }  
   tags = {
     Owner       = "user"
     Environment = "Inspection"
