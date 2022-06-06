@@ -72,11 +72,13 @@ output "module_vpc1_this_customer_gateway" {
   value       = module.vpc1.this_customer_gateway
 }
 
+#Transit Gateway ID
 output "transit_gateway" {
   description = "Map of Customer Gateway attributes"
   value       = aws_ec2_transit_gateway.tgw
 }
 
+#Internet Gateway ID
 output "internet_gateway" {
   description = "Map of Customer Gateway attributes"
   value       = module.vpc1.igw_id
