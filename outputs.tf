@@ -44,19 +44,14 @@ output "module_vpc1_database_subnets" {
   value       = module.vpc1.database_subnets
 }
 
-output "module_vpc1_elasticache_subnets" {
+output "module_vpc1_transitgateway_subnets" {
   description = "List of IDs of elasticache subnets"
-  value       = module.vpc1.elasticache_subnets
+  value       = aws_subnet.private_subnet
 }
 
-output "module_vpc1_redshift_subnets" {
-  description = "List of IDs of redshift subnets"
-  value       = module.vpc1.redshift_subnets
-}
-
-output "module_vpc1_intra_subnets" {
-  description = "List of IDs of intra subnets"
-  value       = module.vpc1.intra_subnets
+output "module_vpc1_nat_subnets" {
+  description = "List of IDs of elasticache subnets"
+  value       = aws_subnet.public_subnet
 }
 
 # NAT gateways
@@ -72,7 +67,17 @@ output "module_vpc1_cgw_ids" {
   value       = module.vpc1.cgw_ids
 }
 
-output "tmodule_vpc1_his_customer_gateway" {
+output "module_vpc1_this_customer_gateway" {
   description = "Map of Customer Gateway attributes"
   value       = module.vpc1.this_customer_gateway
+}
+
+output "transit_gateway" {
+  description = "Map of Customer Gateway attributes"
+  value       = aws_ec2_transit_gateway.tgw
+}
+
+output "internet_gateway" {
+  description = "Map of Customer Gateway attributes"
+  value       = module.vpc1.igw_id
 }
