@@ -39,13 +39,11 @@ module "vpc1" {
   public_subnet_tags = {
     "kubernetes.io/role/elb"                      = "1"
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/cluster/${local.cluster_name1}" = "shared"
      Name = "GK-Infra-ALB"
   }
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb"             = "1"
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/cluster/${local.cluster_name1}" = "shared"  
      Name = "GK-Infra-FW"
   }
   private_route_table_tags = {
@@ -57,8 +55,7 @@ module "vpc1" {
   tags = {
     Owner       = "user"
     Environment = "Inspection"
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/cluster/${local.cluster_name1}" = "shared"    
+    "kubernetes.io/cluster/${local.cluster_name}" = "shared"   
   }     
 }
  
