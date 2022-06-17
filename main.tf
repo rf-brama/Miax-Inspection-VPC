@@ -11,7 +11,7 @@ data "aws_availability_zones" "available" {}
 
 locals {
   cluster_name = "MIAX-POC"
-  cluster_name1 = "MIAX-POC1"
+/*   cluster_name1 = "MIAX-POC1" */
 }
 
 resource "random_string" "suffix" {
